@@ -150,10 +150,8 @@ class PostController extends Controller
         }
         //provervamo da li je nas unos validan
         $validator = Validator::make($request->all(), [
-            'category_id' => 'required|numeric',
             'title' => 'sometimes|min:2',
             'content' => 'sometimes|min:2',
-            'picture' => 'nullable|image|max:2048'
         ]);
 
         if ($validator->fails()) {
@@ -175,45 +173,7 @@ class PostController extends Controller
             ], 403);
         }
 
-        //proveravamo da li postoji uneti category_id ako ga korisnik menja
-        if ($request->has('category_id')) {
-            $category = PostCategory::find($request->category_id);
 
-            if (!$category) {
-                return response()->json([
-                    'status' => 'fail',
-                    'message' => 'Category with id: ' . $request->category_id . ' doesnt exist in the base!!!'
-                ], 404);
-            }
-
-            $post->category_id = $category->id;
-        }
-
-        if ($request->hasFile('picture')) {
-
-            // Ako post već ima staru sliku — brišemo je
-            if ($post->picture && file_exists(public_path($post->picture))) {
-                unlink(public_path($post->picture));
-            }
-
-            // Sada obrađujemo novu sliku
-            $picture = $request->file('picture');
-            $picture_name = time() . '_' . $picture->getClientOriginalName();
-
-            // Čuvamo novu sliku
-            $picture->move(public_path('storage/posts'), $picture_name);
-
-            // Ažuriramo putanju u bazi
-            $post->picture = "storage/posts/" . $picture_name;
-        }
-
-        //ako request nema sliku, a orignalni post je imao sliku, neka se slika izbrise
-        if (!$request->hasFile('picture') && $post->picture) {
-            if (file_exists(public_path($post->picture))) {
-                unlink(public_path($post->picture));
-            }
-            $post->picture = null;
-        }
         if ($request->has('title')) {
             $post['title'] = $request->title;
         }
