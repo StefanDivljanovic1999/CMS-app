@@ -72,7 +72,7 @@ class PageController extends Controller
         if (!$page) return response()->json(['status' => 'fail', 'message' => "Page with id $id doesn't exist!"], 404);
 
         $user = Auth::user();
-        if ($user->id !== $page->user_id) return response()->json(['status' => 'fail', 'message' => 'You are not allowed to perform this operation.'], 403);
+        if ($user->id !== $page->user_id && $user->role !== 'admin') return response()->json(['status' => 'fail', 'message' => 'You are not allowed to perform this operation.'], 403);
 
         if ($request->has('title')) {
             $page->title = $request->title;
@@ -93,7 +93,7 @@ class PageController extends Controller
         if (!$page) return response()->json(['status' => 'fail', 'message' => "Page with id $id doesn't exist in the base!"], 404);
 
         $user = Auth::user();
-        if ($user->id != $page->user_id) return response()->json(['status' => 'fail', 'message' => 'You are not allowed to perform this operation!!!'], 403);
+        if ($user->id !== $page->user_id) return response()->json(['status' => 'fail', 'message' => 'You are not allowed to perform this operation!!!'], 403);
 
         $page->delete();
         return response()->json(['status' => 'success', 'message' => 'Page successfully deleted!'], 200);
@@ -108,6 +108,7 @@ class PageController extends Controller
             'slug' => $page->slug,
             'template' => $page->template,
             'layout' => $page->layout,
+            'status' => $page->status
         ]);
     }
 }
