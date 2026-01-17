@@ -29,13 +29,22 @@ class PageController extends Controller
 
         $user = Auth::user();
 
+        //samo admin moze da kreira front stranicu, a author moze blog i landing
+        if ($user->role === 'author' && $request->template === 'front') {
+            return response()->json(['status' => 'fail', 'message' => 'Only admin can make front page!!!'], 403);
+        }
+
+        //ako je user role admin status je odmah published, ako nije onda je draft
+        $status = $user->role === 'admin' ? 'published' : "draft";
+
+
         $page = Page::create([
             'user_id' => $user->id,
             'title' => $request->title,
             'slug' => Str::slug($request->title),
             'template' => $request->template,
             'layout' => $request->layout ?? [],
-            'status' => 'published',
+            'status' => $status,
         ]);
 
         return response()->json(['status' => 'success', 'message' => 'Page successfully created!', 'data' => $page], 201);
