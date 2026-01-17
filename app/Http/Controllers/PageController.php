@@ -19,7 +19,7 @@ class PageController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'title' => 'required|min:2|max:255',
-            'template' => 'required|in:blog,landing',
+            'template' => 'required|in:blog,landing,front',
             'layout' => 'sometimes|array'
         ]);
 
