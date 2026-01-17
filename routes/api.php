@@ -67,8 +67,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     //ruta za pregled sajta
     Route::get('menus/preview/{slug}', [MenuController::class, 'previewSite']);
 
-    //Ruta kojom se omogucava adminu da manipulise stranicama(store,update,delet
+    //Ruta kojom se omogucava kreatorima da manipulise stranicama(store,update,delet
     Route::apiResource('pages', PageController::class)->except('index', 'show')->middleware('role:admin,author');
+
+    //Ruta koja omogucava adminu da menja status objavjene stranice autora
+    Route::put('pages/approve/{id}', [PageController::class, 'approve'])->middleware('role:admin');
 });
 
 //ruta za pregled stranica

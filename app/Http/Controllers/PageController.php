@@ -111,4 +111,42 @@ class PageController extends Controller
             'status' => $page->status
         ]);
     }
+
+    public function approve(Request $request, $id)
+    {
+
+        //prvo proveravamo nas unos
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'status' => 'required|in:draft,published,rejected'
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => $validator->errors()
+            ], 400);
+        }
+
+        //pronalazimo page ako postoji u bazi
+        $page = Page::find($id);
+
+        if (!$page) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'page with id: ' . $id . ' doesnt exist in the base!!!'
+            ], 404);
+        }
+
+        $page->status = $request->status;
+        $page->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Status has been submited for page id: ' . $id,
+            'status' => $page->status
+        ], 200);
+    }
 }
